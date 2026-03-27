@@ -1,0 +1,24 @@
+id: 'nf-core-tandemrepeat-methods-description'
+section_name: 'nf-core/tandemrepeat Methods Description'
+section_href: 'https://github.com/nf-core/tandemrepeat'
+plot_type: 'html'
+## Update the HTML below to your preferred methods description
+data: |
+  <h4>Methods</h4>
+  <p>Data was processed using nf-core/tandemrepeat v${workflow.version}.</p>
+  <p>The pipeline uses the following tools for tandem repeat annotation:</p>
+  <ul>
+    <li><b>TRF</b>: Tandem Repeats Finder for identifying tandem repeats</li>
+    <li><b>ULTRA</b>: Universal Tandem Repeat Annotator for long reads</li>
+    <li><b>Vampire</b>: Variable Motif Pattern Finder for complex tandem repeats</li>
+  </ul>
+  <p>The command used to run the pipeline was:</p>
+  <pre><code>${workflow.commandLine}</code></pre>
+  <p>Parameters:</p>
+  <ul>
+    <li>Tools used: ${params.tools}</li>
+    <li>Reference: ${params.fasta}</li>
+  </ul>
+  <h4>References</h4>
+  <p>Gary Benson, Tandem Repeats Finder: a program to analyze DNA sequences. Nucleic Acids Research (1999)</p>
+  <p>Evanthia T. Orenstein, Richard E. Green. ULTRA: a model based approach to tandem repeat annotation. bioRxiv (2020)</p>
