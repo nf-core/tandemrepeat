@@ -1,0 +1,366 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/nf-core/tandemrepeat/master/nextflow_schema.json",
+  "title": "nf-core/tandemrepeat pipeline parameters",
+  "description": "Schema for the parameters of the nf-core/tandemrepeat pipeline",
+  "type": "object",
+  "definitions": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "required": ["input", "outdir"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "pattern": "^\\S+\\.csv$",
+          "description": "Path to comma-separated file containing information about the samples in the experiment.",
+          "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 2 columns, and a header row.",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "fasta": {
+          "type": "string",
+          "format": "file-path",
+          "pattern": "^\\S+\\.(fa|fasta|fa\\.gz|fasta\\.gz)$",
+          "description": "Path to FASTA genome file.",
+          "help_text": "If you don't have a samplesheet, you can provide a single FASTA file directly using this parameter.",
+          "fa_icon": "fas fa-dna"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved.",
+          "default": "./results",
+          "fa_icon": "fas fa-folder-open"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address for completion summary.",
+          "fa_icon": "fas fa-envelope",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "email_on_fail": {
+          "type": "string",
+          "description": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
+          "fa_icon": "fas fa-exclamation-triangle",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "plaintext_email": {
+          "type": "boolean",
+          "description": "Send plain-text email instead of HTML.",
+          "default": false,
+          "fa_icon": "fas fa-remove-format"
+        },
+        "monochrome_logs": {
+          "type": "boolean",
+          "description": "Do not use coloured log outputs.",
+          "default": false,
+          "fa_icon": "fas fa-palette"
+        },
+        "hook_url": {
+          "type": "string",
+          "description": "Incoming webhook URL for notification.",
+          "fa_icon": "fas fa-link"
+        }
+      }
+    },
+    "tool_selection_options": {
+      "title": "Tool selection options",
+      "type": "object",
+      "description": "Choose which tandem repeat detection tools to run.",
+      "properties": {
+        "tools": {
+          "type": "string",
+          "default": "trf,ultra,vampire",
+          "pattern": "^((trf|ultra|vampire),?)+$",
+          "description": "Tools to use for tandem repeat detection.",
+          "help_text": "Specify which tools to run for tandem repeat annotation. Multiple tools can be specified using commas (e.g., 'trf,ultra'). Available tools: trf (Tandem Repeats Finder), ultra (ULTRA annotator), vampire (Vampire TR detector).",
+          "fa_icon": "fas fa-tools",
+          "enum": [
+            "trf",
+            "ultra",
+            "vampire",
+            "trf,ultra",
+            "trf,vampire",
+            "ultra,vampire",
+            "trf,ultra,vampire"
+          ]
+        }
+      }
+    },
+    "trf_options": {
+      "title": "TRF options",
+      "type": "object",
+      "description": "Parameters for Tandem Repeats Finder (TRF).",
+      "properties": {
+        "trf_match": {
+          "type": "integer",
+          "default": 2,
+          "minimum": 1,
+          "description": "Matching weight.",
+          "help_text": "The weight for matching symbols in the alignment.",
+          "fa_icon": "fas fa-balance-scale"
+        },
+        "trf_mismatch": {
+          "type": "integer",
+          "default": 7,
+          "minimum": 1,
+          "description": "Mismatching penalty.",
+          "fa_icon": "fas fa-not-equal"
+        },
+        "trf_delta": {
+          "type": "integer",
+          "default": 7,
+          "minimum": 1,
+          "description": "Indel penalty.",
+          "fa_icon": "fas fa-minus-circle"
+        },
+        "trf_pm": {
+          "type": "integer",
+          "default": 80,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Match probability.",
+          "fa_icon": "fas fa-percent"
+        },
+        "trf_pi": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Indel probability.",
+          "fa_icon": "fas fa-percentage"
+        },
+        "trf_minscore": {
+          "type": "integer",
+          "default": 24,
+          "minimum": 1,
+          "description": "Minimum alignment score to report.",
+          "help_text": "The minimum alignment score to report a tandem repeat.",
+          "fa_icon": "fas fa-flag-checkered"
+        },
+        "trf_maxperiod": {
+          "type": "integer",
+          "default": 500,
+          "minimum": 1,
+          "description": "Maximum period size to report.",
+          "help_text": "The maximum period size (repeat unit length) to report.",
+          "fa_icon": "fas fa-ruler-horizontal"
+        }
+      }
+    },
+    "ultra_options": {
+      "title": "ULTRA options",
+      "type": "object",
+      "description": "Parameters for ULTRA tandem repeat annotator.",
+      "properties": {
+        "ultra_annot": {
+          "type": "string",
+          "description": "ULTRA annotation mode or additional parameters.",
+          "help_text": "Optional annotation parameters for ULTRA. Can be used to specify custom annotation files or modes.",
+          "fa_icon": "fas fa-edit"
+        }
+      }
+    },
+    "vampire_options": {
+      "title": "Vampire options",
+      "type": "object",
+      "description": "Parameters for Vampire tandem repeat detector.",
+      "properties": {
+        "vampire_min_motif_size": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1,
+          "description": "Minimum motif size.",
+          "help_text": "Minimum size of the repeat motif to detect.",
+          "fa_icon": "fas fa-compress-arrows-alt"
+        },
+        "vampire_max_motif_size": {
+          "type": "integer",
+          "default": 20,
+          "minimum": 1,
+          "description": "Maximum motif size.",
+          "help_text": "Maximum size of the repeat motif to detect.",
+          "fa_icon": "fas fa-expand-arrows-alt"
+        }
+      }
+    },
+    "institutional_config_options": {
+      "title": "Institutional config options",
+      "type": "object",
+      "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+      "help_text": "The centralised nf-core config profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to use these parameters directly.",
+      "properties": {
+        "custom_config_version": {
+          "type": "string",
+          "default": "master",
+          "hidden": true,
+          "description": "Git commit id for Institutional configs.",
+          "fa_icon": "fas fa-users-cog"
+        },
+        "custom_config_base": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+          "hidden": true,
+          "description": "Base directory for Institutional configs.",
+          "fa_icon": "fas fa-users-cog"
+        },
+        "config_profile_name": {
+          "type": "string",
+          "hidden": true,
+          "description": "Institutional config name used for the pipeline run.",
+          "fa_icon": "fas fa-users-cog"
+        },
+        "config_profile_description": {
+          "type": "string",
+          "hidden": true,
+          "description": "Institutional config description.",
+          "fa_icon": "fas fa-users-cog"
+        },
+        "config_profile_contact": {
+          "type": "string",
+          "hidden": true,
+          "description": "Institutional config contact information.",
+          "fa_icon": "fas fa-users-cog"
+        },
+        "config_profile_url": {
+          "type": "string",
+          "hidden": true,
+          "description": "Institutional config URL link.",
+          "fa_icon": "fas fa-users-cog"
+        }
+      }
+    },
+    "max_job_request_options": {
+      "title": "Max job request options",
+      "type": "object",
+      "description": "Set the top limit for requested resources for any single job.",
+      "help_text": "If you are running on a limited cluster environment, you can use these parameters to set a top limit for the resources requested by any single job. This can help prevent the pipeline from failing due to requesting too many resources.",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "default": 16,
+          "description": "Maximum number of CPUs that can be requested for any single job.",
+          "fa_icon": "fas fa-microchip",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "max_memory": {
+          "type": "string",
+          "default": "128.GB",
+          "pattern": "^\\d+\\.?(\\d+)?(\\s)?(GB|MB|TB)$",
+          "description": "Maximum amount of memory that can be requested for any single job.",
+          "fa_icon": "fas fa-memory"
+        },
+        "max_time": {
+          "type": "string",
+          "default": "240.h",
+          "pattern": "^\\d+\\.?(\\d+)?(\\s)?(s|m|h|d)$",
+          "description": "Maximum amount of time that can be requested for any single job.",
+          "fa_icon": "fas fa-clock"
+        }
+      }
+    },
+    "generic_options": {
+      "title": "Generic options",
+      "type": "object",
+      "description": "Less common options for the pipeline, typically set in a config file.",
+      "help_text": "These options are common to all nf-core pipelines and allow you to customise the pipeline run in a variety of ways. They are typically set in the Nextflow config file rather than on the command line.",
+      "properties": {
+        "help": {
+          "type": "boolean",
+          "description": "Display help text.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "help_full": {
+          "type": "boolean",
+          "description": "Display help text with all parameters.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "version": {
+          "type": "boolean",
+          "description": "Display version and exit.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "publish_dir_mode": {
+          "type": "string",
+          "default": "copy",
+          "description": "Method used to save pipeline results to output directory.",
+          "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+          "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+          "fa_icon": "fas fa-copy"
+        },
+        "pipelines_testdata_base_path": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+          "description": "Base URL for test datasets.",
+          "fa_icon": "fas fa-cloud-download-alt"
+        },
+        "multiqc_config": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Custom config file to supply to MultiQC.",
+          "fa_icon": "fas fa-cog"
+        },
+        "multiqc_title": {
+          "type": "string",
+          "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
+          "fa_icon": "fas fa-heading"
+        },
+        "multiqc_logo": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file.",
+          "fa_icon": "fas fa-image"
+        },
+        "multiqc_methods_description": {
+          "type": "string",
+          "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+          "fa_icon": "fas fa-info-circle"
+        },
+        "max_multiqc_email_size": {
+          "type": "string",
+          "default": "25.MB",
+          "description": "Threshold size for MultiQC report to be attached in notification email.",
+          "fa_icon": "fas fa-envelope-open-text"
+        },
+        "show_hidden": {
+          "type": "boolean",
+          "description": "Show all hidden parameters in the help output.",
+          "fa_icon": "fas fa-eye-slash"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/input_output_options"
+    },
+    {
+      "$ref": "#/definitions/tool_selection_options"
+    },
+    {
+      "$ref": "#/definitions/trf_options"
+    },
+    {
+      "$ref": "#/definitions/ultra_options"
+    },
+    {
+      "$ref": "#/definitions/vampire_options"
+    },
+    {
+      "$ref": "#/definitions/institutional_config_options"
+    },
+    {
+      "$ref": "#/definitions/max_job_request_options"
+    },
+    {
+      "$ref": "#/definitions/generic_options"
+    }
+  ]
+}
