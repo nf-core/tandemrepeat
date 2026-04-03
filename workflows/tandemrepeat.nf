@@ -14,7 +14,9 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 include { INPUT_CHECK                 } from '../subworkflows/local/input_check'
 include { FASTA_INDEX                 } from '../modules/local/fasta_index'
+include { SPLIT_FASTA                 } from '../modules/local/split_fasta'
 include { TRF                         } from '../modules/local/trf'
+include { TRF_TO_GFF                  } from '../modules/local/trf_to_gff'
 include { ULTRA                       } from '../modules/local/ultra'
 include { VAMPIRE                     } from '../modules/local/vampire'
 
@@ -49,15 +51,46 @@ workflow TANDEMREPEAT {
     def tools = params.tools ? params.tools.split(',').collect{ it.trim().toLowerCase() } : []
 
     //
-    // MODULE: Run TRF for tandem repeat detection
+    // MODULE: Split FASTA by chromosome for parallel TRF processing
+    //
+    ch_split_fasta = Channel.empty()
+    if (tools.contains('trf')) {
+        SPLIT_FASTA (
+            INPUT_CHECK.out.fasta
+        )
+        ch_split_fasta = SPLIT_FASTA.out.chromosomes
+            .flatMap { meta, chromosomes ->
+                chromosomes.collect { chr ->
+                    // Extract chromosome name from filename
+                    def chr_name = chr.getName().replaceAll(/\.fa$/, '')
+                    def chr_meta = meta.clone()
+                    chr_meta.chr = chr_name
+                    [ chr_meta, chr ]
+                }
+            }
+        ch_versions = ch_versions.mix(SPLIT_FASTA.out.versions)
+    }
+
+    //
+    // MODULE: Run TRF for tandem repeat detection (per chromosome)
     //
     ch_trf_results = Channel.empty()
+    ch_trf_gff = Channel.empty()
     if (tools.contains('trf')) {
         TRF (
-            INPUT_CHECK.out.fasta
+            ch_split_fasta
         )
         ch_trf_results = TRF.out.dat
         ch_versions = ch_versions.mix(TRF.out.versions)
+
+        //
+        // MODULE: Convert TRF output to GFF3 format
+        //
+        TRF_TO_GFF (
+            ch_trf_results
+        )
+        ch_trf_gff = TRF_TO_GFF.out.gff
+        ch_versions = ch_versions.mix(TRF_TO_GFF.out.versions)
     }
 
     //
@@ -116,6 +149,9 @@ workflow TANDEMREPEAT {
     )
 
     emit:
+    trf_gff        = ch_trf_gff       // channel: [ val(meta), path(gff) ]
+    ultra_gff      = ch_ultra_results // channel: [ val(meta), path(gff) ]
+    vampire_bed    = ch_vampire_results // channel: [ val(meta), path(bed) ]
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions                 // channel: [ path(versions.yml) ]
+    versions       = ch_versions      // channel: [ path(versions.yml) ]
 }

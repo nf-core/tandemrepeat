@@ -1,6 +1,6 @@
 process TRF {
-    tag "$meta.id"
-    label 'process_medium'
+    tag "$meta.id${meta.chr ? '_'+meta.chr : ''}"
+    label 'process_low'
 
     conda "bioconda::trf=4.09.1"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -20,7 +20,8 @@ process TRF {
 
     script:
     def args = task.ext.args ?: '2 7 7 80 10 24 500 -d -h'
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def chr_suffix = meta.chr ? "_${meta.chr}" : ""
+    def prefix = task.ext.prefix ?: "${meta.id}${chr_suffix}"
     """
     trf \
         $fasta \
@@ -43,7 +44,8 @@ process TRF {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def chr_suffix = meta.chr ? "_${meta.chr}" : ""
+    def prefix = task.ext.prefix ?: "${meta.id}${chr_suffix}"
     """
     touch ${prefix}.trf.dat
     touch ${prefix}.trf.txt
